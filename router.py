@@ -34,4 +34,12 @@ async def upload_csv_file(file : UploadFile = File(...), db: Session = Depends(g
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail="Error occured file uploading the file: {str(e)}")
-    
+
+
+# @router.get('/train-pipeline/{table_name}')
+# async def train_pipeline(table_name : str):
+#     try:
+#         df = pd.read_sql(f"Select * from {table_name}", con=engine)
+#         required_cols = {'ticket description','ticket type', 'product purchased', 'ticket subject', 'ticket priority'}
+        
+

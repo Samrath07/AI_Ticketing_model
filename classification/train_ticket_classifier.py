@@ -1,9 +1,4 @@
 
-"""
-Usage:
-    python train_classifier_bitext.py --csv bitext_export.csv
-"""
-import argparse
 import json
 from pathlib import Path
 
@@ -36,13 +31,13 @@ def check_class_balance(df: pd.DataFrame) -> None:
 
 def train_category_model(df: pd.DataFrame, output_dir: Path, random_state: int = 42) -> TfidfVectorizer:
     X_train, X_test, y_train, y_test = train_test_split(
-        df[TEXT_COL], df[CATEGORY_COL], test_size=0.2, random_state=random_state, stratify=df[CATEGORY_COL]
+        df[TEXT_COL], df[CATEGORY_COL], test_size=0.3, random_state=random_state, stratify=df[CATEGORY_COL]
     )
     vectorizer = TfidfVectorizer(stop_words="english", max_features=8000, ngram_range=(1, 2), min_df=2)
     X_train_vec = vectorizer.fit_transform(X_train)
     X_test_vec = vectorizer.transform(X_test)
 
-    model = GradientBoostingClassifier(n_estimators=200, learning_rate=0.05, max_depth=3, random_state=random_state)
+    model = GradientBoostingClassifier(n_estimators=100, learning_rate=0.05, max_depth=3, random_state=random_state)
     model.fit(X_train_vec, y_train)
     acc = accuracy_score(y_test, model.predict(X_test_vec))
     print(f"[category] accuracy = {acc:.3f}")
@@ -101,21 +96,3 @@ def predict(text: str, output_dir: str = "artifacts") -> dict:
 
     return {"category": category, "intent": intent}
 
-
-def main():
-    parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--csv", required=True)
-    parser.add_argument("--output-dir", default="artifacts")
-    args = parser.parse_args()
-
-    output_dir = Path(args.output_dir)
-    output_dir.mkdir(exist_ok=True)
-
-    df = load_data(args.csv)
-    check_class_balance(df)
-    train_category_model(df, output_dir)
-    train_intent_models_per_category(df, output_dir)
-
-
-if __name__ == "__main__":
-    main()

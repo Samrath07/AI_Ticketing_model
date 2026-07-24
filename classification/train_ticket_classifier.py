@@ -111,7 +111,7 @@ def main():
     output_dir = Path(args.output_dir)
     output_dir.mkdir(exist_ok=True)
 
-    df = load_data("bitext_export.csv")
+    df = load_data(args.csv)
     check_class_balance(df)
     train_category_model(df, output_dir)
     train_intent_models_per_category(df, output_dir)
